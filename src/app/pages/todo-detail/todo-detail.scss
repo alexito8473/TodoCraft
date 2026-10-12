@@ -1,0 +1,88 @@
+.detail-container {
+  max-width: 500px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+
+  .card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+    h2 {
+      color: #1e293b;
+      margin-bottom: 1.5rem;
+    }
+
+    .info-group {
+      margin-bottom: 1.25rem;
+
+      label {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+
+      p {
+        color: #334155;
+        font-size: 1.1rem;
+        margin: 0;
+
+        &.title {
+          font-weight: 500;
+        }
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: #fef3c7;
+        color: #d97706;
+
+        &.completed {
+          background: #d1fae5;
+          color: #059669;
+        }
+      }
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      gap: 1rem;
+
+      button {
+        padding: 0.65rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: background 0.2s;
+
+        &.back-btn {
+          background: #e2e8f0;
+          color: #334155;
+          &:hover { background: #cbd5e1; }
+        }
+
+        &.delete-btn {
+          background: #fee2e2;
+          color: #dc2626;
+          &:hover { background: #fecaca; }
+        }
+      }
+    }
+
+    &.not-found {
+      text-align: center;
+      p { color: #64748b; margin-bottom: 1.5rem; }
+    }
+  }
+}

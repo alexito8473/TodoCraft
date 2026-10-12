@@ -1,0 +1,37 @@
+<div class="detail-container">
+  @if (todo(); as currentTodo) {
+    <div class="card">
+      <h2>Detalle de la Tarea</h2>
+
+      <div class="info-group">
+        <label>Título:</label>
+        <p class="title">{{ currentTodo.title }}</p>
+      </div>
+
+      <div class="info-group">
+        <label>Estado:</label>
+        <p>
+          <span class="badge" [class.completed]="currentTodo.completed">
+            {{ currentTodo.completed ? 'Completada' : 'Pendiente' }}
+          </span>
+        </p>
+      </div>
+
+      <div class="info-group">
+        <label>Fecha de creación:</label>
+        <p>{{ currentTodo.createdAt | date: 'medium' }}</p>
+      </div>
+
+      <div class="actions">
+        <button class="back-btn" routerLink="/">Volver al listado</button>
+        <button class="delete-btn" (click)="deleteAndReturn()">Eliminar tarea</button>
+      </div>
+    </div>
+  } @else {
+    <div class="card not-found">
+      <h2>Tarea no encontrada</h2>
+      <p>La tarea que buscas no existe o fue eliminada.</p>
+      <button class="back-btn" routerLink="/">Volver al inicio</button>
+    </div>
+  }
+</div>

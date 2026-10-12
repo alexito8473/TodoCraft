@@ -1,0 +1,42 @@
+<div class="todo-container">
+  <h1>Mis Tareas Pendientes</h1>
+
+  <!-- Formulario para agregar tarea -->
+  <div class="input-group">
+    <input
+      type="text"
+      [ngModel]="newTodoTitle()"
+      (ngModelChange)="newTodoTitle.set($event)"
+      (keyup.enter)="onAdd()"
+      placeholder="¿Qué tienes planeado hacer hoy?"
+    />
+    <button (click)="onAdd()">Añadir</button>
+  </div>
+
+  <!-- Lista de tareas -->
+  <ul class="todo-list">
+    @for (todo of todoService.todos(); track todo.id) {
+      <li [class.completed]="todo.completed">
+        <label (click)="$event.stopPropagation()">
+          <input
+            type="checkbox"
+            [checked]="todo.completed"
+            (change)="todoService.toggleTodo(todo.id)"
+          />
+          <span (click)="onGoToDetail(todo.id)" class="title-text" title="Ver detalle">{{
+            todo.title
+          }}</span>
+        </label>
+
+        <div class="actions">
+          <button class="detail-btn" (click)="onGoToDetail(todo.id)" title="Ver detalle">🔍</button>
+          <button class="delete-btn" (click)="todoService.deleteTodo(todo.id)" title="Eliminar">
+            🗑️
+          </button>
+        </div>
+      </li>
+    } @empty {
+      <p class="empty-msg">¡No hay tareas registradas! Empieza agregando una arriba.</p>
+    }
+  </ul>
+</div>
