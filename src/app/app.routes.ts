@@ -2,20 +2,26 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
-    path: '',
-    loadComponent: () => import('./pages/todo-home/todo-home').then((m) => m.TodoHomeComponent),
+    path: 'login',
+    loadComponent: () => import('./pages/login/login').then((m) => m.Login),
   },
   {
-    path: 'todo/:id',
+    path: 'projects/:projectId',
     loadComponent: () =>
-      import('./pages/todo-detail/todo-detail').then((m) => m.TodoDetailComponent),
+      import('./pages/projects/project-detail/project-detail').then((m) => m.ProjectDetail),
   },
   {
-    path: 'stats',
-    loadComponent: () => import('./pages/stats/stats').then((m) => m.StatsComponent),
+    path: 'projects',
+    loadComponent: () =>
+      import('./pages/projects/project-list/project-list').then((m) => m.ProjectList),
+  },
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'login',
   },
   {
     path: '**',
-    redirectTo: '',
+    redirectTo: 'login',
   },
 ];

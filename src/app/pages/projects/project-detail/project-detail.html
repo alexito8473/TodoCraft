@@ -1,0 +1,323 @@
+<div class="board-page">
+  <header class="board-header">
+    <div>
+      <a routerLink="/projects" class="back-link">← Mis proyectos</a>
+      <h1>{{ projectName() }}</h1>
+      <p>Organiza el trabajo y sigue el progreso del equipo.</p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="create-button" (click)="openCreateForm('')">
+        + Nueva tarea
+      </button>
+
+      <button type="button" class="secondary-button" (click)="openStatusForm()">
+        + Nuevo estado
+      </button>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <div class="error-banner" role="alert">
+      <span>{{ errorMessage() }}</span>
+      <button type="button" (click)="loadBoard()">Reintentar</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <p class="loading-state">Cargando tablero...</p>
+  } @else {
+    <div
+      class="kanban-board"
+      cdkDropList
+      cdkDropListOrientation="horizontal"
+      [cdkDropListData]="statuses()"
+      (cdkDropListDropped)="dropStatuses($event)"
+    >
+      @for (status of statuses(); track status.id) {
+        <section class="kanban-column" cdkDrag [cdkDragData]="status">
+          <header class="column-header">
+            <div class="column-title" cdkDragHandle>
+              <span class="status-dot" [style.backgroundColor]="status.color || '#94a3b8'"></span>
+
+              <h2>{{ status.name }}</h2>
+
+              <span class="task-count">
+                {{ getTasks(status.id).length }}
+              </span>
+
+              <span class="task-category-badge" [attr.data-category]="status.category || 'todo'">
+                {{
+                  status.category === 'todo'
+                    ? 'Por hacer'
+                    : status.category === 'in_progress'
+                      ? 'En progreso'
+                      : status.category === 'done'
+                        ? 'Terminado'
+                        : status.category || 'Sin categoría'
+                }}
+              </span>
+            </div>
+
+            <div class="status-actions">
+              <button
+                type="button"
+                class="icon-button"
+                title="Editar estado"
+                aria-label="Editar estado"
+                (click)="openStatusForm(status); $event.stopPropagation()"
+              >
+                ✎
+              </button>
+
+              <button
+                type="button"
+                class="icon-button danger"
+                title="Eliminar estado"
+                aria-label="Eliminar estado"
+                (click)="deleteStatus(status); $event.stopPropagation()"
+              >
+                ×
+              </button>
+            </div>
+          </header>
+
+          <div
+            class="task-list"
+            cdkDropList
+            [id]="status.id"
+            [cdkDropListData]="getTasks(status.id)"
+            (cdkDropListDropped)="drop($event, status.id)"
+          >
+            @for (task of getTasks(status.id); track task.id) {
+              <article class="task-card" cdkDrag [cdkDragData]="task">
+                <div class="task-card-top">
+                  <span class="task-type">TAREA</span>
+
+                  <div class="task-actions">
+                    <button
+                      type="button"
+                      class="icon-button"
+                      title="Editar tarea"
+                      aria-label="Editar tarea"
+                      (click)="openEditTaskForm(task); $event.stopPropagation()"
+                    >
+                      ✎
+                    </button>
+
+                    <button
+                      type="button"
+                      class="icon-button danger"
+                      title="Eliminar tarea"
+                      aria-label="Eliminar tarea"
+                      (click)="deleteTask(task); $event.stopPropagation()"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+
+                <h3>{{ task.title }}</h3>
+
+                <p class="task-description">
+                  {{ task.description || 'Sin descripción' }}
+                </p>
+
+                <div class="task-card-footer">
+                  <span
+                    class="priority"
+                    [class.low]="task.priority === 'low'"
+                    [class.medium]="task.priority === 'medium'"
+                    [class.high]="task.priority === 'high'"
+                    [class.highest]="task.priority === 'highest'"
+                  >
+                    {{ priorityLabel(task.priority) }}
+                  </span>
+                </div>
+
+                <ng-template cdkDragPlaceholder>
+                  <div class="task-placeholder"></div>
+                </ng-template>
+              </article>
+            } @empty {
+              <div class="column-empty">No hay tareas en este estado.</div>
+            }
+          </div>
+
+          <button type="button" class="column-add-button" (click)="openCreateForm(status.id)">
+            + Añadir tarea
+          </button>
+
+          <ng-template cdkDragPlaceholder>
+            <div class="column-placeholder"></div>
+          </ng-template>
+        </section>
+      } @empty {
+        <div class="board-empty">
+          <h2>Este tablero todavía no tiene estados</h2>
+          <p>Crea un estado para comenzar a organizar las tareas.</p>
+
+          <button type="button" class="create-button" (click)="openStatusForm()">
+            + Crear primer estado
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modal para crear o editar tareas -->
+@if (showCreateForm()) {
+  <div class="modal-backdrop" (click)="closeTaskForm()">
+    <section
+      class="task-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="task-modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-header">
+        <div>
+          <h2 id="task-modal-title">
+            {{ editingTaskId() ? 'Editar tarea' : 'Nueva tarea' }}
+          </h2>
+          <p>Completa los datos de la tarea.</p>
+        </div>
+
+        <button type="button" class="close-button" aria-label="Cerrar" (click)="closeTaskForm()">
+          ×
+        </button>
+      </header>
+
+      <form (ngSubmit)="saveTask()">
+        <label for="task-title">Título</label>
+        <input
+          id="task-title"
+          name="taskTitle"
+          [ngModel]="newTitle()"
+          (ngModelChange)="newTitle.set($event)"
+          required
+          maxlength="200"
+        />
+
+        <label for="task-description">Descripción</label>
+        <textarea
+          id="task-description"
+          name="taskDescription"
+          rows="3"
+          [ngModel]="newDescription()"
+          (ngModelChange)="newDescription.set($event)"
+        ></textarea>
+
+        <label for="task-status">Estado</label>
+        <select
+          id="task-status"
+          name="taskStatus"
+          [ngModel]="newStatusId()"
+          (ngModelChange)="newStatusId.set($event)"
+          required
+        >
+          @for (status of statuses(); track status.id) {
+            <option [value]="status.id">{{ status.name }}</option>
+          }
+        </select>
+
+        <label for="task-priority">Prioridad</label>
+        <select
+          id="task-priority"
+          name="taskPriority"
+          [ngModel]="newPriority()"
+          (ngModelChange)="newPriority.set($event)"
+        >
+          <option value="low">Baja</option>
+          <option value="medium">Media</option>
+          <option value="high">Alta</option>
+          <option value="highest">Urgente</option>
+        </select>
+
+        <div class="modal-actions">
+          <button type="button" class="cancel-button" (click)="closeTaskForm()">Cancelar</button>
+
+          <button
+            type="submit"
+            class="create-button"
+            [disabled]="saving() || !newTitle().trim() || !newStatusId()"
+          >
+            {{ saving() ? 'Guardando...' : editingTaskId() ? 'Guardar cambios' : 'Crear tarea' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+<!-- Modal para crear o editar estados -->
+@if (showStatusForm()) {
+  <div class="modal-backdrop" (click)="closeStatusForm()">
+    <section
+      class="task-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="status-modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-header">
+        <div>
+          <h2 id="status-modal-title">
+            {{ editingStatusId() ? 'Editar estado' : 'Nuevo estado' }}
+          </h2>
+          <p>Personaliza una columna del tablero.</p>
+        </div>
+
+        <button type="button" class="close-button" aria-label="Cerrar" (click)="closeStatusForm()">
+          ×
+        </button>
+      </header>
+
+      <form (ngSubmit)="saveStatus()">
+        <label for="status-name">Nombre</label>
+        <input
+          id="status-name"
+          name="statusName"
+          [ngModel]="statusName()"
+          (ngModelChange)="statusName.set($event)"
+          required
+          maxlength="100"
+        />
+
+        <label for="status-category">Categoría</label>
+        <select
+          id="status-category"
+          name="statusCategory"
+          [ngModel]="statusCategory()"
+          (ngModelChange)="statusCategory.set($event)"
+          required
+        >
+          <option value="todo">Por hacer</option>
+          <option value="in_progress">En progreso</option>
+          <option value="done">Terminado</option>
+        </select>
+
+        <label for="status-color">Color</label>
+        <div class="color-field">
+          <input
+            id="status-color"
+            name="statusColor"
+            type="color"
+            [ngModel]="statusColor()"
+            (ngModelChange)="statusColor.set($event)"
+          />
+          <span>{{ statusColor() }}</span>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="cancel-button" (click)="closeStatusForm()">Cancelar</button>
+
+          <button type="submit" class="create-button" [disabled]="saving() || !statusName().trim()">
+            {{ saving() ? 'Guardando...' : editingStatusId() ? 'Guardar cambios' : 'Crear estado' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}

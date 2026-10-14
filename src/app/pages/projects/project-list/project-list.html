@@ -1,0 +1,189 @@
+<div class="dashboard">
+  <aside class="sidebar">
+    <a class="brand" href="/projects">
+      <span class="brand-icon">T</span>
+      TodoCraft
+    </a>
+
+    <p class="nav-label">ESPACIO DE TRABAJO</p>
+
+    <a class="nav-item active" href="/projects"> <span>▦</span> Mis proyectos </a>
+
+    <a class="nav-item" href="/projects"> <span>✓</span> Mis tareas </a>
+
+    <div class="sidebar-bottom">
+      <div class="avatar">TC</div>
+      <div>
+        <strong>Mi cuenta</strong>
+        <small>TodoCraft</small>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <span>Espacio de trabajo / <strong>Proyectos</strong></span>
+      <span class="topbar-mark">TodoCraft</span>
+    </header>
+
+    <section class="page-content">
+      <div class="welcome">
+        <div>
+          <p class="eyebrow">TU ESPACIO DE TRABAJO</p>
+          <h1>Mis proyectos</h1>
+          <p class="subtitle">Organiza tus ideas y convierte tus planes en resultados.</p>
+        </div>
+
+        <button class="primary-button" (click)="openModal()"><span>＋</span> Nuevo proyecto</button>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <span>⌕</span>
+          <input type="search" placeholder="Buscar proyectos..." [(ngModel)]="search" />
+        </div>
+
+        <span class="project-count">
+          {{ filteredProjects.length }}
+          {{ filteredProjects.length === 1 ? 'proyecto' : 'proyectos' }}
+        </span>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-banner" role="alert">
+          {{ errorMessage() }}
+          <button (click)="loadProjects()">Reintentar</button>
+        </div>
+      }
+
+      @if (loading()) {
+        <div class="empty-state">
+          <p>Cargando proyectos...</p>
+        </div>
+      } @else if (filteredProjects.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">▦</div>
+          <h2>
+            {{ search() ? 'No encontramos proyectos' : 'Tu espacio empieza aquí' }}
+          </h2>
+          <p>
+            {{
+              search()
+                ? 'Prueba con otro término de búsqueda.'
+                : 'Crea tu primer proyecto y empieza a organizar tus tareas.'
+            }}
+          </p>
+
+          @if (!search()) {
+            <button class="primary-button" (click)="openModal()">Crear mi primer proyecto</button>
+          }
+        </div>
+      } @else {
+        <div class="project-grid">
+          @for (project of filteredProjects; track project.id) {
+            <article
+              class="project-card"
+              [routerLink]="['/projects', project.id]"
+              tabindex="0"
+              role="link"
+              [attr.aria-label]="'Abrir proyecto ' + project.name"
+            >
+              <div class="card-top">
+                <div class="project-icon" [style.background]="project.color">
+                  {{ project.name.charAt(0).toUpperCase() }}
+                </div>
+                <span class="card-menu">•••</span>
+              </div>
+
+              <h2>{{ project.name }}</h2>
+
+              <p class="project-description">
+                {{ project.description || 'Sin descripción' }}
+              </p>
+
+              <div class="card-footer">
+                <span class="project-tag">
+                  <span [style.background]="project.color"></span>
+                  Proyecto
+                </span>
+
+                <span class="arrow">↗</span>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </main>
+</div>
+
+@if (showModal()) {
+  <div class="modal-backdrop" (click)="showModal.set(false)">
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-heading">
+        <div>
+          <h2 id="modal-title">Crear proyecto</h2>
+          <p>Define lo básico. Podrás editarlo más adelante.</p>
+        </div>
+        <button
+          class="close-button"
+          type="button"
+          aria-label="Cerrar"
+          (click)="showModal.set(false)"
+        >
+          ×
+        </button>
+      </div>
+
+      <form (ngSubmit)="createProject()">
+        <label for="project-name">Nombre del proyecto</label>
+        <input
+          id="project-name"
+          name="name"
+          [(ngModel)]="name"
+          placeholder="Ej. Rediseño de la web"
+          required
+          maxlength="100"
+        />
+
+        <label for="project-description">Descripción</label>
+        <textarea
+          id="project-description"
+          name="description"
+          [(ngModel)]="description"
+          placeholder="¿Qué quieres conseguir?"
+          rows="3"
+        ></textarea>
+
+        <label for="project-color">Color del proyecto</label>
+        <input
+          id="project-color"
+          class="color-input"
+          name="color"
+          type="color"
+          [(ngModel)]="color"
+        />
+
+        @if (errorMessage()) {
+          <p class="form-error" role="alert">{{ errorMessage() }}</p>
+        }
+
+        <div class="modal-actions">
+          <button class="secondary-button" type="button" (click)="showModal.set(false)">
+            Cancelar
+          </button>
+
+          <button class="primary-button" type="submit" [disabled]="saving() || !name().trim()">
+            {{ saving() ? 'Creando...' : 'Crear proyecto' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
