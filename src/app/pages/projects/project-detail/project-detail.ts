@@ -11,9 +11,10 @@ import { Task, TaskPriority } from '../../../models/tasks/task.model';
 import { FormsModule } from '@angular/forms';
 import { Status } from '../../../models/status/status.model';
 import { StatusesService } from '../../../services/status/status.service';
+import { ShareProjectComponent } from '../../../components/share-project/share-project';
 
 @Component({
-  imports: [DragDropModule, FormsModule, RouterLink],
+  imports: [DragDropModule, FormsModule, RouterLink, ShareProjectComponent],
   selector: 'app-project-detail',
   styleUrl: './project-detail.scss',
   templateUrl: './project-detail.html',
@@ -40,6 +41,7 @@ export class ProjectDetail implements OnInit, OnDestroy {
   readonly errorMessage = signal('');
 
   readonly showCreateForm = signal(false);
+  readonly showShareProjectForm = signal(false);
   readonly newTitle = signal('');
   readonly newDescription = signal('');
   readonly newPriority = signal<TaskPriority>('medium');
@@ -118,6 +120,12 @@ export class ProjectDetail implements OnInit, OnDestroy {
       .sort((a, b) => a.position - b.position);
   }
 
+  openShareProjectForm(): void {
+    this.showShareProjectForm.set(true);
+  }
+  closeShareProjectForm(): void {
+    this.showShareProjectForm.set(false);
+  }
   openCreateForm(statusId: string): void {
     this.newStatusId.set(statusId);
     this.newTitle.set('');
@@ -278,7 +286,7 @@ export class ProjectDetail implements OnInit, OnDestroy {
           priority: this.newPriority(),
         });
 
-        this.tasks.update((items) => items.map((item) => (item.id === taskId ? updated : item)));
+        //   this.tasks.update((items) => items.map((item) => (item.id === taskId ? updated : item)));
       } else {
         const created = await this.tasksService.create({
           title,
@@ -289,7 +297,7 @@ export class ProjectDetail implements OnInit, OnDestroy {
           position: this.getTasks(statusId).length,
         });
 
-        this.tasks.update((items) => [...items, created]);
+        //  this.tasks.update((items) => [...items, created]);
       }
 
       this.closeTaskForm();

@@ -3,9 +3,10 @@ import { ProjectsService } from '../../../services/project/projectsService.servi
 import { Project } from '../../../models/projects/project.model';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { ReceiveProjectComponent } from '../../../components/receive-project/receive-project';
 
 @Component({
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, ReceiveProjectComponent],
   selector: 'app-project-list',
   styleUrl: './project-list.scss',
   templateUrl: './project-list.html',
@@ -18,6 +19,7 @@ export class ProjectList {
   errorMessage = signal('');
 
   showModal = signal(false);
+  showModalReceive = signal(false);
   saving = signal(false);
 
   name = signal('');
@@ -50,6 +52,7 @@ export class ProjectList {
 
     try {
       this.projects.set(await this.projectsService.getAll());
+      console.log('Proyectos cargados:', await this.projectsService.getAllShared());
     } catch {
       this.errorMessage.set(
         'No se han podido cargar los proyectos. Comprueba la conexión con PocketBase.',
@@ -57,6 +60,10 @@ export class ProjectList {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  openModalReceive(): void {
+    this.showModalReceive.set(true);
   }
 
   openModal(): void {

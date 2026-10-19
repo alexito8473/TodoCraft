@@ -33,6 +33,9 @@
           <h1>Mis proyectos</h1>
           <p class="subtitle">Organiza tus ideas y convierte tus planes en resultados.</p>
         </div>
+        <button class="primary-button" (click)="openModalReceive()">
+          <span>＋</span> Recibir proyecto
+        </button>
 
         <button class="primary-button" (click)="openModal()"><span>＋</span> Nuevo proyecto</button>
       </div>
@@ -116,7 +119,19 @@
     </section>
   </main>
 </div>
-
+@if (showModalReceive()) {
+  <div class="modal-backdrop" (click)="showModalReceive.set(false)">
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <app-receive-project (close)="showModalReceive.set(false)" />
+    </section>
+  </div>
+}
 @if (showModal()) {
   <div class="modal-backdrop" (click)="showModal.set(false)">
     <section

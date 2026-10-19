@@ -34,7 +34,7 @@
           <input
             id="password"
             name="password"
-            [type]="showPassword ? 'text' : 'password'"
+            [type]="showPassword() ? 'text' : 'password'"
             placeholder="Introduce tu contraseña"
             [(ngModel)]="password"
             autocomplete="current-password"
@@ -44,27 +44,27 @@
           <button
             class="toggle-password"
             type="button"
-            (click)="showPassword = !showPassword"
-            [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            (click)="showPassword.set(!showPassword())"
+            [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
           >
-            {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+            {{ showPassword() ? 'Ocultar' : 'Mostrar' }}
           </button>
         </div>
       </div>
 
-      @if (errorMessage) {
+      @if (errorMessage()) {
         <p class="error-message" role="alert">
-          {{ errorMessage }}
+          {{ errorMessage() }}
         </p>
       }
 
-      <button class="submit-button" type="submit" [disabled]="loading || loginForm.invalid">
-        @if (loading) {
+      <button class="submit-button" type="submit" [disabled]="loading() || loginForm.invalid">
+        @if (loading()) {
           Iniciando sesión...
         } @else {
           Iniciar sesión
         }
-        @if (!loading) {
+        @if (!loading()) {
           <span aria-hidden="true">→</span>
         }
       </button>

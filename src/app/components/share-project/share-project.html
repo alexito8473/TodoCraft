@@ -1,0 +1,66 @@
+<div class="share-panel">
+  <header class="share-header">
+    <div class="share-heading">
+      <span class="share-icon">↗</span>
+      <div>
+        <h2>Compartir proyecto</h2>
+        <p>Invita a otra persona con un código temporal.</p>
+      </div>
+    </div>
+
+    <button type="button" class="close-btn" aria-label="Cerrar" (click)="closePanel()">×</button>
+  </header>
+
+  <div class="share-content">
+    <label for="share-role">Permisos de acceso</label>
+
+    <select id="share-role" name="role" [(ngModel)]="role" [disabled]="loading()">
+      <option value="editor">Editor — puede modificar tareas</option>
+      <option value="reader">Lector — solo puede consultar</option>
+      <option value="admin">Administrador — puede gestionar el proyecto</option>
+    </select>
+
+    <button
+      type="button"
+      class="primary-btn"
+      [disabled]="loading() || !projectId"
+      (click)="createCode()"
+    >
+      {{ loading() ? 'Generando código...' : 'Generar código' }}
+    </button>
+
+    @if (code()) {
+      <section class="code-result">
+        <div class="result-heading">
+          <span class="success-icon">✓</span>
+          <div>
+            <h3>Código generado</h3>
+            <p>Compártelo con la persona que recibirá el proyecto.</p>
+          </div>
+        </div>
+
+        <div class="code-box">
+          <code>{{ code() }}</code>
+          <button type="button" class="copy-btn" (click)="copyCode()">
+            {{ copied() ? 'Copiado ✓' : 'Copiar' }}
+          </button>
+        </div>
+
+        <p class="expiry">Caduca el {{ expiresAt() | date: 'medium' }}</p>
+
+        <p class="security-note">Este código está pensado para utilizarse una sola vez.</p>
+      </section>
+    }
+
+    @if (error()) {
+      <div class="error-box" role="alert">
+        <strong>No se pudo compartir</strong>
+        <p>{{ error() }}</p>
+      </div>
+    }
+  </div>
+
+  <footer class="share-footer">
+    <button type="button" class="cancel-btn" (click)="closePanel()">Cerrar</button>
+  </footer>
+</div>

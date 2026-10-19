@@ -1,0 +1,36 @@
+<div class="receive-panel">
+  <header>
+    <div>
+      <h2>Recibir proyecto</h2>
+      <p>Pega el código que te ha compartido otra persona.</p>
+    </div>
+
+    <button type="button" class="close-btn" (click)="close.emit()">×</button>
+  </header>
+
+  <form (ngSubmit)="receive()">
+    <label for="received-code">Código de invitación</label>
+
+    <input
+      id="received-code"
+      name="code"
+      type="text"
+      [(ngModel)]="code"
+      placeholder="Pega aquí el código"
+      autocomplete="off"
+      required
+    />
+
+    <button class="primary-btn" type="submit" [disabled]="loading()">
+      {{ loading() ? 'Comprobando...' : 'Recibir proyecto' }}
+    </button>
+  </form>
+
+  @if (error()) {
+    <p class="error-message">{{ error() }}</p>
+  }
+
+  @if (success()) {
+    <p class="success-message">{{ success() }}</p>
+  }
+</div>

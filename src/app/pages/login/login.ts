@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { AuthServiceService } from '../../services/auth/authService.service';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,30 +10,34 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './login.html',
 })
 export class Login {
+  // variable
+  email = signal<string>('');
+  password = signal<string>('');
+  loading = signal<boolean>(false);
+  errorMessage = signal<string>('');
+  showPassword = signal<boolean>(false);
+
+  // inject
   private readonly authService = inject(AuthServiceService);
 
-  email = '';
-  password = '';
-  loading = false;
-  errorMessage = '';
-  showPassword = false;
-
+  // functions
   async onSubmit(): Promise<void> {
-    this.errorMessage = '';
+    this.errorMessage.set('');
 
-    if (!this.email.trim() || !this.password) {
-      this.errorMessage = 'Introduce tu correo y contraseña.';
+    if (!this.email().trim() || !this.password()) {
+      this.errorMessage.set('Introduce tu correo y contraseña.');
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
 
     try {
-      await this.authService.login(this.email.trim(), this.password);
-    } catch {
-      this.errorMessage = 'No se ha podido iniciar sesión. Comprueba tus credenciales.';
+      await this.authService.login(this.email().trim(), this.password());
+    } catch (error: unknown) {
+      console.log(error);
+      this.errorMessage.set('No se ha podido iniciar sesión. Comprueba tus credenciales.');
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 }
